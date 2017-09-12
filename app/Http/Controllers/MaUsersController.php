@@ -2,8 +2,9 @@
 
 use App\Models\MAUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MaUsersController extends Controller
 {
@@ -43,9 +44,23 @@ class MaUsersController extends Controller
      *
      * @return Response
      */
-    public function store()
+    public function store(Request $request)
     {
-        //
+        $user = new MAUsers();
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        $user->position = $request->position;
+        $user->role_id = $request->role_id;
+        $user->password = Hash::make($request->password);
+
+       if($user->save()){
+           return response()->json(['user' => $user], 201);
+       } else {
+           return response()->json(['error' => 'New user is NOT saved'], 400);
+       }
+
+
     }
 
     /**
