@@ -2,9 +2,10 @@
 
 use App\Models\MAUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Uuid;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use JWTAuth;
+
 
 class MaUsersController extends Controller
 {
@@ -18,11 +19,12 @@ class MaUsersController extends Controller
     public function index()
     {
         $user = JWTAuth::parseToken()->toUser();
+        // when we are certain that the user is connected
         $users = MAUsers::all();
-        //formating data response angular / json
+        // formating data to response angular/json
         $response = [
             'users' => $users,
-            'user' => $user
+            'user' => $user,
         ];
         return response()->json($response, 200);
     }
@@ -46,13 +48,17 @@ class MaUsersController extends Controller
      */
     public function store(Request $request)
     {
+
         $user = new MAUsers();
+        $user->id = Uuid::uuid4();
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
+        $user->remember_token = 0;
         $user->position = $request->position;
         $user->role_id = $request->role_id;
-        $user->password = Hash::make($request->password);
+        $user->password = bcrypt($request->password);
+
 
        if($user->save()){
            return response()->json(['user' => $user], 201);
@@ -108,7 +114,8 @@ class MaUsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        MAUsers::find($id)->delete();
+        return response()->json(['success'=> 'user deleted successfully'], 200);
     }
 
 
@@ -125,7 +132,7 @@ class MaUsersController extends Controller
                 return response()->json(['error' => 'Invalid Credentials!'], 401);
             }
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create toke!'], 500);
+            return response()->json(['error' => 'Could not create token!'], 500);
         }
         return response()->json(['token' => $token], 200);
     }
