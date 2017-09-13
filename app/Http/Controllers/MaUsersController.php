@@ -18,13 +18,12 @@ class MaUsersController extends Controller
      */
     public function index()
     {
-        $user = JWTAuth::parseToken()->toUser();
+
         // when we are certain that the user is connected
         $users = MAUsers::all();
         // formating data to response angular/json
         $response = [
-            'users' => $users,
-            'user' => $user,
+            'users' => $users
         ];
         return response()->json($response, 200);
     }
@@ -78,7 +77,13 @@ class MaUsersController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = MAUsers::find($id);
+
+        if($user) {
+            return response()->json(['user' => $user], 200);
+        }else{
+            return response()->json(['error'=>'User is not found'], 400);
+        }
     }
 
     /**
@@ -100,9 +105,23 @@ class MaUsersController extends Controller
      * @param  int $id
      * @return Response
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        //
+        $user = MAUsers::find($id);
+        
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        $user->position = $request->position;
+        $user->role_id = $request->role_id;
+
+        if($user->save()){
+            return response()->json(['success' => $user], 201);
+        } else {
+            return response()->json(['error' => 'User is NOT updated'], 401);
+        }
+
+
     }
 
     /**
@@ -114,8 +133,8 @@ class MaUsersController extends Controller
      */
     public function destroy($id)
     {
-        MAUsers::find($id)->delete();
-        return response()->json(['success'=> 'user deleted successfully'], 200);
+       $user = MAUsers::where('id', $id)->delete();
+        return response()->json(['success'=> $user], 200);
     }
 
 
