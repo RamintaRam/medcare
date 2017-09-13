@@ -108,7 +108,7 @@ class MaUsersController extends Controller
     public function update(Request $request, $id)
     {
         $user = MAUsers::find($id);
-        
+
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
