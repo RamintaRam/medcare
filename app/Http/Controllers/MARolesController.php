@@ -3,6 +3,7 @@
 use App\Models\MARoles;
 use Illuminate\Routing\Controller;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Http\Request;
 
 class MARolesController extends Controller {
 
@@ -44,8 +45,6 @@ class MARolesController extends Controller {
         $role = new MARoles();
         $role->id = Uuid::uuid4();
         $role->name = $request->name;
-
-
 
         if($role->save()){
             return response()->json(['role' => $role], 201);
@@ -93,9 +92,19 @@ class MARolesController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-        $role =  MARoles::find($id);
+        $role = MARoles::find($id);
+
         $role->name = $request->name;
-	}
+
+
+        if($role->save()){
+            return response()->json(['success' => $role], 201);
+        } else {
+            return response()->json(['error' => 'Role is NOT updated'], 401);
+        }
+
+
+    }
 
 	/**
 	 * Remove the specified resource from storage.
