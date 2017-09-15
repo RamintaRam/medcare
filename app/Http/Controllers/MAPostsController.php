@@ -2,11 +2,12 @@
 
 
 use App\Models\MAPosts;
-use App\Models\MAUsers;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Request;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Http\Request;
+
 use JWTAuth;
+
 
 class MAPostsController extends Controller
 {
@@ -21,8 +22,10 @@ class MAPostsController extends Controller
     {
         $posts = MAPosts::all();
         $response = [
-            'posts' => $posts,
+            'posts' => $posts
         ];
+
+
         return response()->json($response, 200);
     }
 
@@ -48,10 +51,11 @@ class MAPostsController extends Controller
         $post = new MAPosts();
 
         $user = JWTAuth::parseToken()->toUser();
-//        $post->id = Uuid::uuid4();
+        $post->id = Uuid::uuid4();
         $post->title = $request->title;
         $post->text = $request->text;
         $post->user_id = $user->id;
+
 
 
         if ($post->save()) {
@@ -59,9 +63,8 @@ class MAPostsController extends Controller
         } else {
             return response()->json(['error' => 'New post is NOT saved'], 400);
         }
-
-
     }
+
 
     /**
      * Display the specified resource.
@@ -72,7 +75,13 @@ class MAPostsController extends Controller
      */
     public function show($id)
     {
-        //
+        $post = MAPosts::find($id);
+
+        if($post) {
+            return response()->json(['post' => $post], 200);
+        }else{
+            return response()->json(['error'=>'Post is not found'], 400);
+        }
     }
 
     /**
@@ -94,9 +103,23 @@ class MAPostsController extends Controller
      * @param  int $id
      * @return Response
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        //
+        $post = MAPosts::find($id);
+
+        $user = JWTAuth::parseToken()->toUser();
+        $post->id = Uuid::uuid4();
+        $post->title = $request->title;
+        $post->text = $request->text;
+        $post->user_id = $user->id;
+
+        if($post->save()){
+            return response()->json(['success' => $post], 201);
+        } else {
+            return response()->json(['error' => 'User is NOT updated'], 401);
+        }
+
+
     }
 
     /**
@@ -108,7 +131,8 @@ class MAPostsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = MAPosts::where('id', $id)->delete();
+        return response()->json(['success' => $post], 200);
     }
 
 }

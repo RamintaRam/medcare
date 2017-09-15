@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Models\MARoles;
 use App\Models\MAUsers;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
@@ -19,12 +20,13 @@ class MaUsersController extends Controller
     public function index()
     {
 
-        // when we are certain that the user is connected
+        $user = JWTAuth::parseToken()->toUser();
         $users = MAUsers::all();
-        // formating data to response angular/json
         $response = [
-            'users' => $users
+            'users' => $users,
+            'user' => $user
         ];
+
         return response()->json($response, 200);
     }
 
@@ -78,9 +80,10 @@ class MaUsersController extends Controller
     public function show($id)
     {
         $user = MAUsers::find($id);
+//        $roles = MARoles::all();
 
         if($user) {
-            return response()->json(['user' => $user], 200);
+            return response()->json(['user' => $user, /*'roles' => $roles*/], 200);
         }else{
             return response()->json(['error'=>'User is not found'], 400);
         }
@@ -133,8 +136,8 @@ class MaUsersController extends Controller
      */
     public function destroy($id)
     {
-       $user = MAUsers::where('id', $id)->delete();
-        return response()->json(['success'=> $user], 200);
+        $user = MAUsers::where('id', $id)->delete();
+        return response()->json(['success' => $user], 200);
     }
 
 
