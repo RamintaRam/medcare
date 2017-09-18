@@ -23,6 +23,16 @@ class MAUsers extends Authenticatable
     ];
 
 
+    public function roles() {
+        return $this->belongsToMany(MARoles::class, 'ma_users_roles_connections', 'user_id', 'role_id');
+    }
+
+
+    public function role(){
+        return $this->hasOne(MAUsersRolesConnections::class, 'user_id', 'id');
+    }
+
+
 
 
 }
